@@ -1,32 +1,33 @@
-# factory-dx-automation-python
-# Factory Machine Monitoring System 🚀
+import pandas as pd
+import matplotlib.pyplot as plt
 
-This project tracks the performance of 20 machines in a factory using data such as Machine ID, Output Units, Shift, and Downtime.
+df = pd.read_csv('/content/factory_log_machines.csv')
 
-## 📊 Features
+df.fillna("No Remarks", inplace=True)
 
-* Analyzes machine efficiency
-* Generates daily performance reports
-* Uses Power Automate for real-time updates
+summary = df.groupby(['Machine ID', 'Shift']).agg({
+    'Output Units': 'sum',
+    'Downtime (min)': 'sum'
+}).reset_index()
 
-## 📁 Files Included
+print(" Production Summary:")
+display(summary)
 
-* factory\_log\_machines.csv
-* factory\_summary.py
-* summary\_output.csv
+pivot = summary.pivot(index='Machine ID', columns='Shift', values='Output Units')
+pivot.plot(kind='bar', figsize=(20, 10))
 
-## 🛠️ Tech Stack
+plt.title('Total Output per Machine per Shift')
+plt.xlabel('Machine ID')
+plt.ylabel('Total Output Units')
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
 
-* Python + Pandas
-* Excel
 
-## 📌 How to Use
 
-1. Upload your machine data to the system.
-2. Run the Python script to generate analysis.
-3. View reports in the `report.pdf`.
 
----
+summary.to_excel('summary_output.xlsx', index=False)
 
-**Author**: Priya Billakurthi
-**GitHub**: \[https://github.com/priyakrishna00]
+# Download it
+from google.colab import files
+files.download('summary_output.xlsx')
